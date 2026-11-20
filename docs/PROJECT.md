@@ -28,11 +28,11 @@
 |---|---|
 | Backend | PHP 8.4, Laravel 12 |
 | Frontend | Inertia.js 2 + Vue 3 (TypeScript), Tailwind CSS, Vite |
-| БД | MySQL 8 |
+| БД | MySQL 8 (локально), PostgreSQL (прод) |
 | Криптография | Web Crypto API (`crypto.subtle`), без сторонних библиотек |
 | Локальная разработка | Laravel Sail (Docker) |
 | Тесты | Pest (backend), Vitest (крипто-модуль) |
-| Хостинг | Laravel Cloud (основной вариант) или Forge + VPS |
+| Хостинг | Laravel Forge + VPS (фактический), Laravel Cloud (альтернатива) |
 
 ## 3. Архитектура
 
@@ -262,7 +262,7 @@ php artisan sail:install --with=mysql
 
 ## 13. Деплой
 
-### Laravel Cloud (основной)
+### Laravel Cloud (альтернатива)
 1. Репозиторий на GitHub → New Application в Laravel Cloud.
 2. Добавить ресурс **MySQL**, переменные окружения подставятся автоматически.
 3. Build: `composer install --no-dev && npm ci && npm run build`.
@@ -270,8 +270,11 @@ php artisan sail:install --with=mysql
 5. Включить **Scheduler** (для `secrets:purge`).
 6. Свой домен (опционально), HTTPS включён по умолчанию.
 
-### Forge + VPS (альтернатива)
-Сервер с PHP 8.4 + MySQL 8 или PostgreSQL + nginx, сайт из GitHub, Let's Encrypt, cron `* * * * * php artisan schedule:run`, лимиты из раздела 10.
+### Forge + VPS (фактический деплой)
+Сервер с PHP 8.4 + PostgreSQL + nginx, сайт из GitHub с авто-деплоем, Let's Encrypt.
+- Deploy Script: `composer install --no-dev`, `npm ci && npm run build`, `php artisan migrate --force`.
+- Scheduler: `php artisan schedule:run` каждую минуту.
+- Лимиты размера запроса из раздела 10.
 
 ## 14. План реализации
 
@@ -283,7 +286,7 @@ php artisan sail:install --with=mysql
 4. **Крипто-модуль**: `crypto.ts` + Vitest.
 5. **UI**: `Create.vue`, `Show.vue`, компоненты; текст, затем файлы.
 6. **Безопасность**: middleware заголовков, CSP, `Cache-Control`, тест.
-7. **Деплой**: Laravel Cloud, проверка на проде.
+7. **Деплой**: Forge + PostgreSQL, проверка на проде.
 8. **Сдача**: README (ссылка на прототип и репозиторий, как запустить), `PROMPT.md`, лог токенов.
 
 ## 15. Экономия токенов при разработке с AI
@@ -297,15 +300,13 @@ php artisan sail:install --with=mysql
 
 ### Лог расхода токенов
 - В Claude Code: команда `/cost` в конце каждой сессии; скриншот или текст сохраняется в `docs/tokens/`.
-- Итоговый отчёт по всем сессиям проекта:
+- Итоговый отчёт по всем сессиям проекта строится из локальных логов Claude Code (`~/.claude/projects/…/*.jsonl`) без сторонних пакетов:
   ```bash
-  npx ccusage@latest daily --since 20261120
-  npx ccusage@latest session
+  python3 scripts/token-usage.py
   ```
-  Вывод сохраняется в `docs/tokens/usage.md` и прикладывается к сдаче.
 
 ## 16. Результат сдачи
-- Ссылка на работающий прототип (Laravel Cloud).
+- Ссылка на работающий прототип (Forge).
 - Ссылка на GitHub-репозиторий.
 - `PROMPT.md`: исходный промпт, с которого началась разработка.
 - `docs/tokens/`: лог расхода токенов.
