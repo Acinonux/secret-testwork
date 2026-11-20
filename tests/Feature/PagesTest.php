@@ -12,7 +12,7 @@ it('renders the create page with options', function () {
 });
 
 it('renders the show page without consuming the secret', function () {
-    $secret = Secret::create(['payload' => random_bytes(64), 'size' => 64, 'expires_at' => now()->addHour()]);
+    $secret = Secret::create(['payload' => base64_encode(random_bytes(64)), 'size' => 64, 'expires_at' => now()->addHour()]);
 
     $this->get("/s/{$secret->id}")->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('Show')

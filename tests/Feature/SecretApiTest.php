@@ -15,7 +15,7 @@ it('stores an encrypted secret', function () {
         ->assertJsonStructure(['id', 'expires_at']);
 
     $secret = Secret::findOrFail($res->json('id'));
-    expect($secret->payload)->toBe(base64_decode($payload))
+    expect($secret->payload)->toBe($payload)
         ->and($secret->size)->toBe(64)
         ->and(strlen($secret->id))->toBe(32)
         ->and($secret->expires_at->diffInSeconds(now()->addHour(), true))->toBeLessThan(5);
@@ -49,7 +49,7 @@ it('reveals a secret only once', function () {
 });
 
 it('does not reveal an expired secret even before purge', function () {
-    $secret = Secret::create(['payload' => random_bytes(64), 'size' => 64, 'expires_at' => now()->addMinutes(5)]);
+    $secret = Secret::create(['payload' => base64_encode(random_bytes(64)), 'size' => 64, 'expires_at' => now()->addMinutes(5)]);
 
     $this->travel(6)->minutes();
 
@@ -62,7 +62,7 @@ it('returns 404 for unknown and malformed ids', function () {
 });
 
 it('does not expose payload when serialized', function () {
-    $secret = Secret::create(['payload' => random_bytes(64), 'size' => 64, 'expires_at' => now()->addHour()]);
+    $secret = Secret::create(['payload' => base64_encode(random_bytes(64)), 'size' => 64, 'expires_at' => now()->addHour()]);
 
     expect($secret->toArray())->not->toHaveKey('payload');
 });

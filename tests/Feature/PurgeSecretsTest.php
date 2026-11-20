@@ -5,7 +5,7 @@ use Illuminate\Console\Scheduling\Schedule;
 
 function makeSecret(int $ttlSeconds): Secret
 {
-    return Secret::create(['payload' => random_bytes(32), 'size' => 32, 'expires_at' => now()->addSeconds($ttlSeconds)]);
+    return Secret::create(['payload' => base64_encode(random_bytes(32)), 'size' => 32, 'expires_at' => now()->addSeconds($ttlSeconds)]);
 }
 
 it('deletes only expired secrets', function () {

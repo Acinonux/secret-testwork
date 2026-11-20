@@ -19,7 +19,7 @@ it('sends security headers on pages and api', function (string $method, Closure 
 })->with([
     'create page' => ['GET', fn () => '/'],
     'show page' => ['GET', fn () => '/s/'.str_repeat('a', 32)],
-    'reveal api' => ['POST', fn () => '/api/secrets/'.Secret::create(['payload' => random_bytes(64), 'size' => 64, 'expires_at' => now()->addHour()])->id.'/reveal'],
+    'reveal api' => ['POST', fn () => '/api/secrets/'.Secret::create(['payload' => base64_encode(random_bytes(64)), 'size' => 64, 'expires_at' => now()->addHour()])->id.'/reveal'],
 ]);
 
 it('sends HSTS only over https', function () {

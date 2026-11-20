@@ -11,11 +11,13 @@ class SecretController extends Controller
 {
     public function store(StoreSecretRequest $request): JsonResponse
     {
-        $payload = $request->decodedPayload();
+        $bytes = $request->decodedPayload();
 
+        // Храним как base64-текст: сырые байты в text/bytea ведут себя по-разному
+        // в MySQL и PostgreSQL, а base64 одинаково переносим.
         $secret = Secret::create([
-            'payload' => $payload,
-            'size' => strlen($payload),
+            'payload' => base64_encode($bytes),
+            'size' => strlen($bytes),
             'expires_at' => now()->addSeconds((int) $request->integer('ttl')),
         ]);
 
@@ -43,6 +45,6 @@ class SecretController extends Controller
 
         abort_if($payload === null, 404);
 
-        return response()->json(['payload' => base64_encode($payload)]);
+        return response()->json(['payload' => $payload]);
     }
 }

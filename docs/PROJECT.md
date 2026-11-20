@@ -87,7 +87,7 @@ export async function decrypt(blob: string, key: string): Promise<object>
 | Поле | Тип | Описание |
 |---|---|---|
 | `id` | `CHAR(32)` PK | Случайный идентификатор (`Str::random(32)`, ~190 бит), не угадывается перебором |
-| `payload` | `MEDIUMBLOB` | Зашифрованный блоб (до 16 МБ) |
+| `payload` | `MEDIUMTEXT` (MySQL) / `TEXT` (PostgreSQL) | Зашифрованный блоб в base64 (сырые байты в PostgreSQL ломают вставку, base64 переносим) |
 | `size` | `INT UNSIGNED` | Размер блоба в байтах |
 | `expires_at` | `TIMESTAMP` + индекс | Момент истечения |
 | `created_at` | `TIMESTAMP` | Время создания |
@@ -271,7 +271,7 @@ php artisan sail:install --with=mysql
 6. Свой домен (опционально), HTTPS включён по умолчанию.
 
 ### Forge + VPS (альтернатива)
-Сервер с PHP 8.4 + MySQL 8 + nginx, сайт из GitHub, Let's Encrypt, cron `* * * * * php artisan schedule:run`, лимиты из раздела 10.
+Сервер с PHP 8.4 + MySQL 8 или PostgreSQL + nginx, сайт из GitHub, Let's Encrypt, cron `* * * * * php artisan schedule:run`, лимиты из раздела 10.
 
 ## 14. План реализации
 
